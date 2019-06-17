@@ -3,13 +3,15 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from . import models
 from django.utils.translation import gettext as _
 
+
 class UserAdmin(BaseUserAdmin):
     ordering = ['id']
     list_display = ['email', 'name']
     fieldsets = (
         (None, {'fields': ('email', 'password')}),
         (_('Personal info'), {'fields': ('name',)}),
-        (_('Permissions'), {'fields': ('is_superuser','is_staff', 'is_active',)}),
+        (_('Permissions'),
+            {'fields': ('is_superuser', 'is_staff', 'is_active',)}),
         (_('Important dates'), {'fields': ('last_login',)})
     )
 
