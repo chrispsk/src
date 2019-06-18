@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from accounts.models import Tag, Ingredient
+from accounts.models import Tag, Ingredient, Reteta
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -17,4 +17,23 @@ class IngredientSerializer(serializers.ModelSerializer):
     class Meta:
         model = Ingredient
         fields = ('id', 'name')
+        read_only_fields = ('id',)
+
+
+class RetetaSerializer(serializers.ModelSerializer):
+    """"Serializer for reteta objects"""
+    ingredients = serializers.PrimaryKeyRelatedField(
+        many=True,
+        queryset=Ingredient.objects.all()
+    )
+    tags = serializers.PrimaryKeyRelatedField(
+        many=True,
+        queryset=Tag.objects.all()
+    )
+
+    class Meta:
+        model = Reteta
+        fields = ('id', 'title', 'ingredients', 'tags',
+                  'time_minutes', 'price', 'link'
+                  )
         read_only_fields = ('id',)
