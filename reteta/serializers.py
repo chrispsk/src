@@ -37,3 +37,9 @@ class RetetaSerializer(serializers.ModelSerializer):
                   'time_minutes', 'price', 'link'
                   )
         read_only_fields = ('id',)
+
+
+class RetetaDetailSerializer(RetetaSerializer):
+    """"Serializer for reteta details"""
+    ingredients = IngredientSerializer(many=True, read_only=True)
+    tags = TagSerializer(many=True, read_only=True)
