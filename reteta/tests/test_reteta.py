@@ -5,10 +5,18 @@ from rest_framework import status
 from rest_framework.test import APIClient
 from accounts.models import Reteta, Tag, Ingredient
 from reteta.serializers import RetetaSerializer, RetetaDetailSerializer
+import tempfile
+import os
+from PIL import Image
 
 RETETA_URL = reverse('reteta:reteta-list')
 # /api/reteta/retete
 # /api/reteta/retete/1/
+
+
+def image_upload_url(reteta_id):
+    """Return URL for reteta image upload"""
+    return reverse('reteta:reteta-upload-image', args=[reteta_id])
 
 
 def detail_url(reteta_id):
@@ -184,3 +192,39 @@ class PrivateRetetaApiTests(TestCase):
         self.assertEqual(recipe.price, payload['price'])
         tags = recipe.tags.all()
         self.assertEqual(len(tags), 0)
+
+
+class RetetaImageUploadTests(TestCase):
+
+    # inainte de test
+    def setUp(self):
+        self.client = APIClient()
+        self.user = get_user_model().objects.create_user(
+            'user@chris.com',
+            'testpass'
+            )
+        self.client.force_authenticate(self.user)
+        self.reteta = sample_reteta(user=self.user)
+
+    # dupa test sterge poze
+    def tearDown(self):
+        self.reteta.image.delete()
+
+    def test_upload_image_to_reteta(self):
+        """Test uploading an email"""
+        url = image_upload_url(self.reteta.id)
+        with tempfile.NamedTemporaryFile(suffix='.jpg') as ntf:
+            img = Image.new('RGB', (10, 10))
+            img.save(ntf, format='JPEG')
+            ntf.seek(0)
+            res = self.client.post(url, {'image': ntf}, format='multipart')
+        self.reteta.refresh_from_db()
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertIn('image', res.data)
+        self.assertTrue(os.path.exists(self.reteta.image.path))
+
+    def test_upload_bad_file(self):
+        """"Test uploading an invalid image"""
+        url = image_upload_url(self.reteta.id)
+        res = self.client.post(url, {'image': 'notimage'}, format='multipart')
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)

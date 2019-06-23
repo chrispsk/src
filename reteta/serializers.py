@@ -43,3 +43,12 @@ class RetetaDetailSerializer(RetetaSerializer):
     """"Serializer for reteta details"""
     ingredients = IngredientSerializer(many=True, read_only=True)
     tags = TagSerializer(many=True, read_only=True)
+
+
+class RetetaImageSerializer(serializers.ModelSerializer):
+    """Serializer for uploading images to reteta"""
+
+    class Meta:
+        model = Reteta
+        fields = ('id', 'image')
+        read_only_fields = ('id',)
