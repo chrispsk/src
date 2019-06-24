@@ -23,7 +23,7 @@ class TagViewSet(viewsets.GenericViewSet,
         )
         queryset = self.queryset
         if assigned_only:
-            queryset = queryset.filter(reteta__isnull=False)
+            queryset = queryset.filter(reteta__isnull=False).distinct()
 
         return queryset.filter(
             user=self.request.user
@@ -50,7 +50,7 @@ class IngredientViewSet(viewsets.GenericViewSet,
         )
         queryset = self.queryset
         if assigned_only:
-            queryset = queryset.filter(reteta__isnull=False)
+            queryset = queryset.filter(reteta__isnull=False).distinct()
 
         return queryset.filter(
             user=self.request.user
